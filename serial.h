@@ -6,6 +6,7 @@
 #include <QObject>
 #include <QByteArray>
 #include <QSerialPort>
+#include <QSerialPortInfo>
 #include <QQueue>
 
 #include "Sheller/Source/sheller.h"
