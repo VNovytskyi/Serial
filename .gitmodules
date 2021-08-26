@@ -1,0 +1,3 @@
+[submodule "Sheller"]
+	path = Sheller
+	url = https://github.com/VNovytskyi/Sheller
