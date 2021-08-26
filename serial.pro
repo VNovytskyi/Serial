@@ -1,4 +1,5 @@
 QT -= gui
+QT += serialport
 
 TEMPLATE = lib
 CONFIG += staticlib
@@ -10,9 +11,13 @@ CONFIG += c++11
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    Sheller/Source/crc.cpp \
+    Sheller/Source/sheller.cpp \
     serial.cpp
 
 HEADERS += \
+    Sheller/Source/crc.h \
+    Sheller/Source/sheller.h \
     serial.h
 
 # Default rules for deployment.
