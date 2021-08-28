@@ -73,7 +73,7 @@ void Serial::disconnect()
         serial.close();
     }
 
-    sheller_deinit(&shell);
+    sheller_deinit(shell);
 
     delete shell;
     delete[] receivedMessage;
