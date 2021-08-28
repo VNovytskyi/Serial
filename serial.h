@@ -9,7 +9,9 @@
 #include <QSerialPortInfo>
 #include <QQueue>
 
-#include "Sheller/Source/sheller.h"
+extern "C" {
+    #include "Sheller/Source/sheller.h"
+}
 
 class Serial: public QThread
 {
