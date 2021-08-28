@@ -1,32 +1,32 @@
 #include "serial.h"
 
-Serial::Serial()
+Serial::Serial(QObject *parent) : QObject(parent)
 {
-    serial = new QSerialPort;
+
 }
 
 Serial::~Serial()
 {
-    delete serial;
+    disconnect();
 }
 
-void Serial::run()
+void Serial::loop()
 {
-    while(runEnabled) {
-        if (serial->isOpen()) {
-            if (!transmittQueue.isEmpty()) {
-                auto txData = transmittQueue.first();
-                transmittQueue.pop_front();
+    while(loopEnabled) {
+        if (serial.isOpen()) {
+
+            if (!transmitQueue.isEmpty()) {
+                auto txData = transmitQueue.first();
+                transmitQueue.pop_front();
 
                 sheller_wrap(shell, (uint8_t*)txData.data(), txData.size(), wrapperedDataBuff);
-
-                serial->write(QByteArray((char*)wrapperedDataBuff, sheller_get_package_length(shell)));
-                serial->waitForBytesWritten(1);
+                serial.write(QByteArray((char*)wrapperedDataBuff, sheller_get_package_length(shell)));
+                serial.waitForBytesWritten(1);
             }
 
-            serial->waitForReadyRead(1);
-            if (serial->bytesAvailable()) {
-                auto receiveData = serial->readAll();
+            serial.waitForReadyRead(1);
+            if (serial.bytesAvailable()) {
+                auto receiveData = serial.readAll();
 
                 for (auto i = 0; i < receiveData.size(); ++i) {
                     sheller_push(shell, receiveData[i]);
@@ -49,31 +49,37 @@ bool Serial::setSheller(uint8_t startByte, uint8_t dataLength, uint16_t receiveB
     this->shellerDataLength = dataLength;
     this->shellerReceiveBuffSize = receiveBuffSize;
 
+    shell = new sheller_t;
+    sheller_init(shell, shellerStartByte, shellerDataLength, shellerReceiveBuffSize);
+    receivedMessage   = new uint8_t [shellerDataLength];
+    wrapperedDataBuff = new uint8_t [sheller_get_package_length(shell)];
+
     return true;
 }
 
 bool Serial::connectTo(QString portName, QString portSpeed)
 {
-    shell = new sheller_t;
-    receivedMessage = new uint8_t(shellerDataLength);
-    wrapperedDataBuff = new uint8_t(sheller_get_package_length(shell));
-    sheller_init(shell, shellerStartByte, shellerDataLength, shellerReceiveBuffSize);
+    serial.setPortName(portName);
+    serial.setBaudRate(portSpeed.toInt());
+    serial.setReadBufferSize(64);
 
-    serial->setPortName(portName);
-    serial->setBaudRate(portSpeed.toInt());
-    //serial->setReadBufferSize(64);
-
-    return serial->open(QIODevice::ReadWrite);
+    return serial.open(QIODevice::ReadWrite);
 }
 
 void Serial::disconnect()
 {
-    serial->clear();
-    serial->close();
+    if (serial.isOpen()) {
+        serial.clear();
+        serial.close();
+    }
 
     delete shell;
-    delete receivedMessage;
-    delete wrapperedDataBuff;
+    delete[] receivedMessage;
+    delete[] wrapperedDataBuff;
+
+    shell = nullptr;
+    receivedMessage = nullptr;
+    wrapperedDataBuff = nullptr;
 }
 
 QByteArray Serial::read()
@@ -91,7 +97,7 @@ QByteArray Serial::read()
 bool Serial::write(QByteArray &data)
 {
     if (data.length() > 0 && data.length() <= shellerDataLength) {
-        transmittQueue.push_back(data);
+        transmitQueue.push_back(data);
         return true;
     }
 
@@ -100,7 +106,7 @@ bool Serial::write(QByteArray &data)
 
 bool Serial::isConnected()
 {
-    return serial->isOpen();
+    return serial.isOpen();
 }
 
 bool Serial::isEmpty()
@@ -108,7 +114,7 @@ bool Serial::isEmpty()
     return receiveQueue.isEmpty();
 }
 
-void Serial::quit()
+void Serial::disableLoop()
 {
-    runEnabled = false;
+    loopEnabled = false;
 }
