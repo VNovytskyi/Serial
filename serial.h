@@ -1,27 +1,27 @@
 #ifndef SERIAL_H
 #define SERIAL_H
 
+#include <QQueue>
 #include <QDebug>
-#include <QThread>
 #include <QObject>
+#include <QThread>
 #include <QByteArray>
 #include <QSerialPort>
 #include <QSerialPortInfo>
-#include <QQueue>
 
 extern "C" {
     #include "Sheller/Source/sheller.h"
 }
 
-class Serial: public QThread
+class Serial: public QObject
 {
     Q_OBJECT
 
-    bool runEnabled = true;
+    bool loopEnabled = true;
 
-    QSerialPort *serial = nullptr;
+    QSerialPort serial;
     QQueue<QByteArray> receiveQueue;
-    QQueue<QByteArray> transmittQueue;
+    QQueue<QByteArray> transmitQueue;
 
     uint8_t shellerStartByte = 0x23;
     uint16_t shellerReceiveBuffSize = 128;
@@ -31,10 +31,11 @@ class Serial: public QThread
     sheller_t *shell = nullptr;
 
 public:
-    Serial();
+    explicit Serial(QObject *parent = nullptr);
     ~Serial();
 
-    void run() override;
+    void loop();
+
     bool setSheller(uint8_t startByte, uint8_t dataLength, uint16_t receiveBuffSize);
     bool connectTo(QString portName, QString portSpeed);
     void disconnect();
@@ -45,8 +46,10 @@ public:
     bool isConnected();
     bool isEmpty();
 
+signals:
+
 public slots:
-    void quit();
+    void disableLoop();
 };
 
 #endif // SERIAL_H
