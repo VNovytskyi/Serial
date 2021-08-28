@@ -41,6 +41,8 @@ public:
 
     QByteArray read();
     bool write(QByteArray &data);
+
+    bool isConnected();
     bool isEmpty();
 
 public slots:

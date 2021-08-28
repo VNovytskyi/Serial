@@ -97,6 +97,11 @@ bool Serial::write(QByteArray &data)
     return false;
 }
 
+bool Serial::isConnected()
+{
+    return serial->isOpen();
+}
+
 bool Serial::isEmpty()
 {
     return receiveQueue.isEmpty();
