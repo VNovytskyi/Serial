@@ -42,6 +42,8 @@ void Serial::run()
                 QByteArray arr((char*)receivedMessage, shellerDataLength);
                 receiveQueue.push_back(arr);
             }
+        } else {
+            QThread().currentThread()->msleep(1);
         }
     }
 }
