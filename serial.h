@@ -16,13 +16,21 @@ class Serial: public QThread
     Q_OBJECT
 
     bool runEnabled = true;
-    QSerialPort *serial = nullptr;
 
+    QSerialPort *serial = nullptr;
     QQueue<QByteArray> receiveQueue;
     QQueue<QByteArray> transmittQueue;
 
+    uint8_t shellerStartByte = 0x23;
+    uint16_t shellerReceiveBuff = 128;
+    uint8_t shellerDataLength = 8;
+    uint8_t *receivedMessage = nullptr;
+    uint8_t *wrapperedDataBuff = nullptr;
+    sheller_t *shell = nullptr;
+
 public:
     Serial();
+    ~Serial();
 
     void run() override;
     bool connectTo(QString portName, QString portSpeed);
