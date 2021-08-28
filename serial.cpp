@@ -12,11 +12,6 @@ Serial::~Serial()
 
 void Serial::run()
 {
-    shell = new sheller_t;
-    sheller_init(shell, shellerStartByte, shellerDataLength, shellerReceiveBuffSize);
-    receivedMessage = new uint8_t(shellerDataLength);
-    wrapperedDataBuff = new uint8_t(sheller_get_package_length(shell));
-
     while(runEnabled) {
         if (serial->isOpen()) {
             if (!transmittQueue.isEmpty()) {
@@ -59,9 +54,15 @@ bool Serial::setSheller(uint8_t startByte, uint8_t dataLength, uint16_t receiveB
 
 bool Serial::connectTo(QString portName, QString portSpeed)
 {
+    shell = new sheller_t;
+    receivedMessage = new uint8_t(shellerDataLength);
+    wrapperedDataBuff = new uint8_t(sheller_get_package_length(shell));
+    sheller_init(shell, shellerStartByte, shellerDataLength, shellerReceiveBuffSize);
+
     serial->setPortName(portName);
     serial->setBaudRate(portSpeed.toInt());
-    serial->setReadBufferSize(64);
+    //serial->setReadBufferSize(64);
+
     return serial->open(QIODevice::ReadWrite);
 }
 
