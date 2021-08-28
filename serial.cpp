@@ -13,7 +13,7 @@ Serial::~Serial()
 void Serial::run()
 {
     shell = new sheller_t;
-    sheller_init(shell, shellerStartByte, shellerDataLength, shellerReceiveBuff);
+    sheller_init(shell, shellerStartByte, shellerDataLength, shellerReceiveBuffSize);
     receivedMessage = new uint8_t(shellerDataLength);
     wrapperedDataBuff = new uint8_t(sheller_get_package_length(shell));
 
@@ -44,6 +44,15 @@ void Serial::run()
             }
         }
     }
+}
+
+bool Serial::setSheller(uint8_t startByte, uint8_t dataLength, uint16_t receiveBuffSize)
+{
+    this->shellerStartByte = startByte;
+    this->shellerDataLength = dataLength;
+    this->shellerReceiveBuffSize = receiveBuffSize;
+
+    return true;
 }
 
 bool Serial::connectTo(QString portName, QString portSpeed)

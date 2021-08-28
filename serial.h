@@ -24,7 +24,7 @@ class Serial: public QThread
     QQueue<QByteArray> transmittQueue;
 
     uint8_t shellerStartByte = 0x23;
-    uint16_t shellerReceiveBuff = 128;
+    uint16_t shellerReceiveBuffSize = 128;
     uint8_t shellerDataLength = 8;
     uint8_t *receivedMessage = nullptr;
     uint8_t *wrapperedDataBuff = nullptr;
@@ -35,6 +35,7 @@ public:
     ~Serial();
 
     void run() override;
+    bool setSheller(uint8_t startByte, uint8_t dataLength, uint16_t receiveBuffSize);
     bool connectTo(QString portName, QString portSpeed);
     void disconnect();
 
