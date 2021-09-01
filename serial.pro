@@ -11,13 +11,15 @@ CONFIG += c++11
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    Sheller/Source/crc.c \
-    Sheller/Source/sheller.c \
+    ../porter/Source/porter.c \
+    ../sheller/Source/crc.c \
+    ../sheller/Source/sheller.c \
     serial.cpp
 
 HEADERS += \
-    Sheller/Source/crc.h \
-    Sheller/Source/sheller.h \
+    ../porter/Source/porter.h \
+    ../sheller/Source/crc.h \
+    ../sheller/Source/sheller.h \
     serial.h
 
 # Default rules for deployment.

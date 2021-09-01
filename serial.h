@@ -10,7 +10,8 @@
 #include <QSerialPortInfo>
 
 extern "C" {
-    #include "Sheller/Source/sheller.h"
+    #include "../sheller/Source/sheller.h"
+    #include "../porter/Source/porter.h"
 }
 
 class Serial: public QObject
