@@ -43,7 +43,7 @@ void Serial::setSpeed(const quint32 &speed)
 
 void Serial::setStartByte(const quint8 &startByte)
 {
-    if (0 < startByte && startByte < 255) {
+    if (value_in_range(SHELLER_STARTBYTE_MIN, startByte, SHELLER_STARTBYTE_MAX)) {
         shellerStartByte = startByte;
     } else {
         qDebug() << "[ Serial ][ ERROR ] Cannot set start byte for sheller";
@@ -57,7 +57,9 @@ void Serial::setStartByte(const QString &startByte)
 
 void Serial::setDataLength(const quint32 dataLength)
 {
-
+    if (value_in_range(1, dataLength, 254)) {
+        serialDataLength = dataLength;
+    }
 }
 
 void Serial::loop()
@@ -84,7 +86,7 @@ void Serial::loop()
             }
 
             if (sheller_read(shell, receivedMessage) == SHELLER_OK) {
-                QByteArray arr((char*)receivedMessage, shellerDataLength);
+                QByteArray arr((char*)receivedMessage, serialDataLength);
                 receiveQueue.push_back(arr);
             }
         } else {
@@ -126,7 +128,7 @@ QByteArray Serial::read()
 
 bool Serial::write(const QByteArray &data)
 {
-    if (data.length() > 0 && data.length() <= shellerDataLength) {
+    if (value_in_range(1, data.length(), serialDataLength)) {
         transmitQueue.push_back(data);
         return true;
     }
@@ -152,12 +154,12 @@ void Serial::disableLoop()
 bool Serial::setSheller(uint8_t startByte, uint8_t dataLength, uint16_t receiveBuffSize)
 {
     this->shellerStartByte = startByte;
-    this->shellerDataLength = dataLength;
+    this->serialDataLength = dataLength;
     this->shellerReceiveBuffSize = receiveBuffSize;
 
     shell = new sheller_t;
-    sheller_init(shell, shellerStartByte, shellerDataLength, shellerReceiveBuffSize);
-    receivedMessage   = new uint8_t [shellerDataLength];
+    sheller_init(shell, shellerStartByte, serialDataLength, shellerReceiveBuffSize);
+    receivedMessage   = new uint8_t [serialDataLength];
     wrapperedDataBuff = new uint8_t [sheller_get_package_length(shell)];
 
     return true;

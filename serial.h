@@ -12,6 +12,8 @@
 #define delete_obj(x) {delete x; x = nullptr;}
 #define delete_arr(x) {delete[] x; x = nullptr;}
 
+#define value_in_range(a, x, b) ((a <= x) && (x <= b))
+
 extern "C" {
     #include "../porter/Source/porter.h"
     #include "../sheller/Source/sheller.h"
@@ -27,12 +29,13 @@ class Serial: public QObject
     QQueue<QByteArray> receiveQueue;
     QQueue<QByteArray> transmitQueue;
 
+    uint8_t serialDataLength = 8;
+
+    sheller_t *shell = nullptr;
     uint8_t shellerStartByte = 0x23;
     uint16_t shellerReceiveBuffSize = 128;
-    uint8_t shellerDataLength = 8;
     uint8_t *receivedMessage = nullptr;
     uint8_t *wrapperedDataBuff = nullptr;
-    sheller_t *shell = nullptr;
 
     porter_t *porter = nullptr;
 
@@ -45,7 +48,6 @@ public:
     void setName (const quint32 &index);
     void setSpeed(const QString &speed);
     void setSpeed(const quint32 &speed);
-
     void setStartByte(const quint8 &startByte);
     void setStartByte(const QString &startByte);
 
