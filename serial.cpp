@@ -19,21 +19,6 @@ void Serial::setName(const QString &name)
     }
 }
 
-void Serial::setName(const quint32 &index)
-{
-    setName("COM" + QString::number(index));
-}
-
-void Serial::setSpeed(const QString &speed)
-{
-    int speedValue = speed.toInt();
-    if (speedValue != 0) {
-        setSpeed(speedValue);
-    } else {
-        qDebug() << "[ Serial ][ ERROR ] Cannot apply port speed. Method .toInt() return 0";
-    }
-}
-
 void Serial::setSpeed(const quint32 &speed)
 {
     if(!serial.setBaudRate(speed)) {
@@ -50,15 +35,21 @@ void Serial::setStartByte(const quint8 &startByte)
     }
 }
 
-void Serial::setStartByte(const QString &startByte)
-{
-    setStartByte((uint8_t)startByte.toInt());
-}
-
 void Serial::setDataLength(const quint32 dataLength)
 {
     if (value_in_range(1, dataLength, 254)) {
         serialDataLength = dataLength;
+    } else {
+        qDebug() << "[ Serial ][ ERROR ] Cannot set serialDataLength. Value not in a range";
+    }
+}
+
+void Serial::setReceiveBufferSize(const quint32 size)
+{
+    if (value_in_range(1, size, 4096)) {
+        shellerReceiveBuffSize = size;
+    } else {
+        qDebug() << "[ Serial ][ ERROR ] Cannot set shellerReceiveBuffSize. Value not in a range";
     }
 }
 
@@ -97,7 +88,23 @@ void Serial::loop()
 
 bool Serial::open()
 {
-    return serial.open(QIODevice::ReadWrite);
+    shell = new sheller_t;
+    receivedMessage   = new uint8_t [serialDataLength];
+    wrapperedDataBuff = new uint8_t [sheller_get_package_length(shell)];
+    if(sheller_init(shell, shellerStartByte, serialDataLength, shellerReceiveBuffSize) == SHELLER_ERROR) {
+        qDebug() << "[ Serial ][ ERROR ] Cannot init sheller";
+        close();
+    }
+
+    porter = new porter_t;
+    //porter_init(porter, dataLength);
+
+
+    if (!serial.open(QIODevice::ReadWrite)) {
+        close();
+    }
+
+    return true;
 }
 
 void Serial::close()
@@ -109,9 +116,9 @@ void Serial::close()
 
     sheller_deinit(shell);
     delete_obj(shell);
+    delete_obj(porter);
     delete_arr(receivedMessage);
     delete_arr(wrapperedDataBuff);
-    //delete porter
 }
 
 QByteArray Serial::read()
@@ -151,29 +158,6 @@ void Serial::disableLoop()
     loopEnabled = false;
 }
 
-bool Serial::setSheller(uint8_t startByte, uint8_t dataLength, uint16_t receiveBuffSize)
-{
-    this->shellerStartByte = startByte;
-    this->serialDataLength = dataLength;
-    this->shellerReceiveBuffSize = receiveBuffSize;
-
-    shell = new sheller_t;
-    sheller_init(shell, shellerStartByte, serialDataLength, shellerReceiveBuffSize);
-    receivedMessage   = new uint8_t [serialDataLength];
-    wrapperedDataBuff = new uint8_t [sheller_get_package_length(shell)];
-
-    return true;
-}
-
-bool Serial::setPorter(uint8_t dataLength)
-{
-    porter = new porter_t;
-    porter_init(porter, dataLength, [](const uint8_t *data, const uint8_t data_length){
-        //send
-    }, [](const uint8_t *data, const uint8_t data_length){
-        //recv
-    }, 100);
-}
 
 
 

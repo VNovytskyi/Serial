@@ -45,13 +45,10 @@ public:
     ~Serial();
 
     void setName (const QString &name);
-    void setName (const quint32 &index);
-    void setSpeed(const QString &speed);
     void setSpeed(const quint32 &speed);
     void setStartByte(const quint8 &startByte);
-    void setStartByte(const QString &startByte);
-
     void setDataLength(const quint32 dataLength);
+    void setReceiveBufferSize(const quint32 size);
 
     void loop();
 
@@ -63,11 +60,6 @@ public:
 
     bool isOpen();
     bool isEmpty();
-
-    bool setSheller(uint8_t startByte, uint8_t dataLength, uint16_t receiveBuffSize);
-    bool setPorter(uint8_t dataLength);
-
-
 
 signals:
 
