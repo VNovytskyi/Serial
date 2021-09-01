@@ -97,7 +97,11 @@ bool Serial::open()
     }
 
     porter = new porter_t;
-    //porter_init(porter, dataLength);
+    porter_init(porter, serialDataLength, [](const uint8_t *data, const uint8_t length){
+
+    }, [](const uint8_t *data, const uint8_t length){
+
+    }, 100);
 
 
     if (!serial.open(QIODevice::ReadWrite)) {
@@ -157,10 +161,3 @@ void Serial::disableLoop()
 {
     loopEnabled = false;
 }
-
-
-
-
-
-
-

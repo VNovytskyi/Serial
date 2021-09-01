@@ -11,7 +11,6 @@
 
 #define delete_obj(x) {delete x; x = nullptr;}
 #define delete_arr(x) {delete[] x; x = nullptr;}
-
 #define value_in_range(a, x, b) ((a <= x) && (x <= b))
 
 extern "C" {
@@ -38,7 +37,6 @@ class Serial: public QObject
     uint8_t *wrapperedDataBuff = nullptr;
 
     porter_t *porter = nullptr;
-
 
 public:
     explicit Serial(QObject *parent = nullptr);
