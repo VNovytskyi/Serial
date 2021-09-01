@@ -9,9 +9,12 @@
 #include <QSerialPort>
 #include <QSerialPortInfo>
 
+#define delete_obj(x) {delete x; x = nullptr;}
+#define delete_arr(x) {delete[] x; x = nullptr;}
+
 extern "C" {
-    #include "../sheller/Source/sheller.h"
     #include "../porter/Source/porter.h"
+    #include "../sheller/Source/sheller.h"
 }
 
 class Serial: public QObject
@@ -31,21 +34,38 @@ class Serial: public QObject
     uint8_t *wrapperedDataBuff = nullptr;
     sheller_t *shell = nullptr;
 
+    porter_t *porter = nullptr;
+
+
 public:
     explicit Serial(QObject *parent = nullptr);
     ~Serial();
 
+    void setName (const QString &name);
+    void setName (const quint32 &index);
+    void setSpeed(const QString &speed);
+    void setSpeed(const quint32 &speed);
+
+    void setStartByte(const quint8 &startByte);
+    void setStartByte(const QString &startByte);
+
+    void setDataLength(const quint32 dataLength);
+
     void loop();
 
-    bool setSheller(uint8_t startByte, uint8_t dataLength, uint16_t receiveBuffSize);
-    bool connectTo(QString portName, QString portSpeed);
-    void disconnect();
+    bool open();
+    void close();
 
     QByteArray read();
-    bool write(QByteArray &data);
+    bool write(const QByteArray &data);
 
-    bool isConnected();
+    bool isOpen();
     bool isEmpty();
+
+    bool setSheller(uint8_t startByte, uint8_t dataLength, uint16_t receiveBuffSize);
+    bool setPorter(uint8_t dataLength);
+
+
 
 signals:
 
